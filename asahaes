@@ -1,0 +1,1929 @@
+repeat wait() until game.Players.LocalPlayer
+local plr = game.Players.LocalPlayer
+game.StarterGui:SetCoreGuiEnabled(2,false)
+
+local char = plr.Character or plr.CharacterAdded
+local root = char:WaitForChild("HumanoidRootPart")
+local hum = char:WaitForChild("Humanoid")
+local run = game:GetService("RunService")
+local tween = game:GetService("TweenService")
+local viewmodel = nil
+local cam = workspace.CurrentCamera
+local the = 0
+local the2 = 0
+local value = Instance.new("NumberValue",script)
+local downvalue = Instance.new("NumberValue",script)
+local anotherdownvalue = Instance.new("Vector3Value",script)
+local viewmodel = nil
+local down = 0
+local new = false
+local holding = false
+local stunned = false
+local viewportframe = script.Parent:WaitForChild("Bar"):WaitForChild("viewportframe")
+local came = Instance.new("Camera",viewportframe)
+viewportframe.CurrentCamera = came
+local oldoff = script.offset.Value
+local black = script.Parent:WaitForChild("blackoutime",0.25)
+local actualoldoff = oldoff
+local thebox = script.Parent:WaitForChild("Mouse"):WaitForChild("options"):WaitForChild("distance")
+local rotation = Instance.new("NumberValue",script)
+rotation.Name = "rotationvalue"
+local anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways = Instance.new("Vector3Value",script)
+script.Parent:WaitForChild("anticheat1").Changed:Connect(function()
+	if script.Parent:WaitForChild("anticheat1").Disabled == true then
+		plr:Kick("Dwo not diswable.... pwease....")
+	end
+end)
+local starting = false
+thebox:GetPropertyChangedSignal("Text"):Connect(function()
+	local v = thebox
+	wait()
+	if v.Text ~= " " and v.Text ~= "" and v.Text ~= "." and v.Text ~= nil and tonumber(v.Text) then
+		local the = tonumber(v.Text)
+		oldoff = Vector3.new(oldoff.X,oldoff.Y,v.Text)
+		actualoldoff = oldoff
+	end
+end)
+local function createbullet(initial,thecf,whodid)
+	if whodid ~= plr then
+		if initial then
+			initial = initial.WorldPosition
+			if whodid then
+				local sound = whodid.Character:FindFirstChild("shootalarm",true)
+				if sound then
+					sound:Play()
+				end
+			end
+			local distance = (thecf.Position - initial).Magnitude
+			local imgoingto = CFrame.lookAt(initial,thecf.Position) * CFrame.new(0,0,-distance/2)
+			local thesize = Vector3.new(0.1,0.1,distance)	
+
+			local bullet = Instance.new("Part",workspace.CurrentCamera)
+			if viewmodel then
+				bullet.Parent = viewmodel
+			end
+			game.Debris:AddItem(bullet,0.1)
+			bullet.Size = thesize
+			bullet.CanCollide = false
+			bullet.Anchored = true
+			bullet.Color = Color3.new(1,1,0)
+			bullet.CFrame = imgoingto
+			bullet.Transparency = 0.5
+			bullet.Name = "AlarmGunBullet"
+		end
+	end
+
+end
+local fieldofview = 90
+anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways.Value = Vector3.new(0,fieldofview,0)
+local aiming = false
+game.ReplicatedStorage.alarmgun.OnClientEvent:Connect(createbullet)
+if script.Parent and script.Parent:IsA("PlayerGui") and script.Parent ~= nil then
+	function inspecthat(v)
+		if v:IsA("Accessory") then
+			local handle = v:WaitForChild("Handle",0.05)
+
+			if handle and not handle:FindFirstChild("did") and  handle:IsA("Part") then
+
+				local did = Instance.new("BoolValue",handle)
+				did.Name = "did"
+				if handle:FindFirstChild("OriginalSize") then
+					handle.OriginalSize.Value = handle.Size
+				else
+					local o = Instance.new("Vector3Value",handle)
+					o.Name = "OriginalSize"
+					o.Value = handle.Size
+
+				end
+				local me = handle:FindFirstChildWhichIsA("SpecialMesh")
+				if me and me.MeshType == Enum.MeshType.Torso then
+					me.Scale = Vector3.new(1000*handle.Size.X,1000*handle.Size.Y,1000*handle.Size.Z) 
+				end
+				handle.Size = Vector3.new(0,0,0)
+
+			end
+		end
+	end
+	for i,v in pairs(workspace:GetDescendants()) do
+		inspecthat(v)
+	end
+	workspace.ChildAdded:Connect(function(d)
+		wait()
+		if d:FindFirstChild("Humanoid") then
+			for i,v in pairs(d:GetChildren()) do
+				inspecthat(v)
+			end
+			d.ChildAdded:Connect(function(v)
+				inspecthat(v)
+			end)
+		end
+	end)
+	for i,d in pairs(workspace:GetChildren()) do
+		if d:FindFirstChild("Humanoid") then
+			for i,v in pairs(d:GetChildren()) do
+				inspecthat(v)
+			end
+			d.ChildAdded:Connect(function(v)
+				inspecthat(v)
+			end)
+		end
+	end
+	local lasto = Vector3.new(0,0,0)
+	run.RenderStepped:Connect(function()
+		for i,enemy in pairs(workspace:GetChildren()) do
+			if enemy ~= char and enemy:FindFirstChild("Humanoid") and enemy:FindFirstChild("HumanoidRootPart") then
+				local newpart	
+				if enemy:FindFirstChild("backstab") then
+					newpart = enemy.backstab
+				else
+					newpart = Instance.new("Part",enemy)
+					newpart.Anchored = true
+					newpart.CanCollide = false
+					newpart.Transparency = 1
+					newpart.Name = "backstab"
+					newpart.Size = Vector3.new(1.5,4,0.5)
+				end
+
+				newpart.CFrame = enemy.HumanoidRootPart.CFrame - (enemy.HumanoidRootPart.CFrame.LookVector / 2)
+				if not enemy.HumanoidRootPart.Anchored and enemy.Humanoid.Health > 0 then
+					if enemy:FindFirstChild("toolweld3",true) then
+						for i,v in pairs(enemy:GetChildren()) do
+							local talweld3 = v:FindFirstChild("toolweld3")
+							if talweld3 then
+								talweld3:Destroy()
+							end
+						end
+					end
+				end
+			end
+		end
+		local speedbye = 17
+		local fastofspeed = 0.5
+		if not starting then
+			anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways.Value = anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways.Value:Lerp(Vector3.new(0,fieldofview,0),0.1)
+		end
+		cam.FieldOfView = anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways.Value.Y
+		plr.CameraMode = Enum.CameraMode.LockFirstPerson
+		the2 = the2 * 0.98
+		local ju = 0
+		local ju2 = 0
+		local currentTime = tick()
+		if hum.MoveDirection.Magnitude > 0 then
+			ju = 4
+			ju2 = 5
+			fastofspeed = fastofspeed  / 3
+
+		end
+
+
+		if hum.WalkSpeed > speedbye and hum.MoveDirection.Magnitude > 0 then
+			ju = ju * 2
+			ju2 = ju2 * 2
+
+			tween:Create(downvalue,TweenInfo.new(fastofspeed),{Value = -0.5 + down}):Play()
+
+		else
+			tween:Create(downvalue,TweenInfo.new(fastofspeed),{Value = 0 + down}):Play()
+
+		end
+
+
+
+		local wah = (math.cos(currentTime * ju) * .35) * ju2
+
+		the = wah
+		local it = the + the2
+		if aiming then
+			it = it / 2
+		end
+		tween:Create(value,TweenInfo.new(0.3),{Value = it}):Play()
+		cam.CFrame = cam.CFrame * (CFrame.Angles(0,0,math.rad(value.Value) / 3))
+
+		if viewmodel then
+			local thing = char["Left Arm"]:FindFirstChild("thego")
+			if  thing then
+				for i,v in pairs(viewmodel.Model:GetDescendants()) do
+					if v:IsA("Decal") and (v.Parent.Name == "Right Arm" or v.Parent.Name == "Left Arm") then
+						v.Transparency = thing.Transparency
+						if v.Color3 ~= thing.Color3 then
+							v.Color3 = thing.Color3
+						end
+					end
+				end
+			end
+
+			-- i forgot what this does so ill just add the lines of among us viewmodel haha cool
+			-- hi tho
+			
+			if black.TextLabel.Text ~= "DOOM ANIMATIONS" then
+				if viewmodel:FindFirstChild("rotation") then
+					local ori = viewmodel.rotation.Orientation - viewmodel.camera.Orientation
+					local o = ori - lasto
+					local lol = cam.CFrame:ToOrientation()
+
+					if lol < 1.2 and lol > -1.2 then
+						cam.CFrame = cam.CFrame * (CFrame.Angles(math.rad(o.X),math.rad(o.Y),math.rad(o.Z)))
+
+					end
+					lasto = ori
+				end
+			end
+
+			local lo2 = value.Value / ju2
+			local lo = lo2
+			if lo > 0 then
+				lo = lo - lo - lo
+			end	
+
+			lo = lo / 1.7
+			lo2 = lo2 / 1.7
+			if hum.MoveDirection.Magnitude == 0 then
+				lo = 0
+				lo2 = 0
+			end
+			if hum.WalkSpeed > speedbye and hum.MoveDirection.Magnitude > 0 then
+				lo2 = lo2 * 1.25
+				lo = lo * 1.25
+			end
+			viewmodel.baseofbase.CFrame = CFrame.new(cam.CFrame.Position)
+			local lerptime = 0.2
+			local anotherlerptime = 0.091
+
+			if aiming then
+				lo = lo / 3
+				lo2 = lo2 / 3
+			end
+
+			local thing = 1
+			if aiming then
+				thing = 9
+			end
+			if new then
+				new = false
+				anotherdownvalue.Value = Vector3.new(0,-3,0)	
+				viewmodel.baseofbase.Weld.C0 = (cam.CFrame * (CFrame.new(lo2,(anotherdownvalue.Value.Y / thing) + lo + (downvalue.Value / thing),-0.25) + script.offset.Value )):toObjectSpace(viewmodel.baseofbase.CFrame):inverse() * CFrame.Angles(math.rad(180),math.rad(-180),math.rad(-180))
+			else
+				if black.TextLabel.Text == "DOOM ANIMATIONS" then
+					if anotherdownvalue.Value == Vector3.new(0,-1.5,0) then
+						anotherdownvalue.Value = Vector3.new(0,0,0)
+					elseif anotherdownvalue.Value ~= Vector3.new(0,0,0) then
+						anotherdownvalue.Value = Vector3.new(0,-1.5,0)
+
+					end
+				else
+					anotherdownvalue.Value = anotherdownvalue.Value:Lerp(Vector3.new(0,0,0),anotherlerptime)
+
+				end
+
+			end
+
+			viewmodel.baseofbase.Weld.C0 = viewmodel.baseofbase.Weld.C0:Lerp((cam.CFrame * (CFrame.new(lo2,-0.25 +( anotherdownvalue.Value.Y / thing) + lo + (downvalue.Value / thing),-0.25) + script.offset.Value )):toObjectSpace(viewmodel.baseofbase.CFrame):inverse() * CFrame.Angles(math.rad(180),math.rad(-180),math.rad(-180)),lerptime)
+			if black.TextLabel.Text == "DOOM ANIMATIONS" then
+				viewmodel.baseofbase.Weld.C0 = (cam.CFrame * (CFrame.new(lo2,-0.25 +( anotherdownvalue.Value.Y / thing) + lo + (downvalue.Value / thing),-0.25) + script.offset.Value )):toObjectSpace(viewmodel.baseofbase.CFrame):inverse() * CFrame.Angles(math.rad(180),math.rad(-180),math.rad(-180))
+			end
+		end
+		for i,v in pairs(viewportframe:GetChildren()) do
+			if not v:IsA("Camera") then
+				v:Destroy()
+			end
+		end
+		if viewportframe.Visible then
+			if viewmodel then
+				script.offset.Value = Vector3.new(oldoff.X,oldoff.Y,oldoff.Z + -1.25  )
+				for i,v in pairs(viewmodel:GetChildren()) do
+					if v:IsA("Model") or v:IsA("BasePart") then
+						v:Clone().Parent = viewportframe
+					end
+				end
+				for i,v in pairs(viewmodel:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.LocalTransparencyModifier = 1
+					end
+					if v:IsA("Decal") then
+						v.Transparency = 1
+					end
+				end
+				for i,v in pairs(viewportframe:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.LocalTransparencyModifier = v.Transparency
+						v.Material = Enum.Material.SmoothPlastic
+					end
+					if v:IsA("Decal") and v.Name ~= "thego" then
+						v.Transparency = 0
+					end
+				end
+			end
+			came.CFrame = cam.CFrame
+		else
+			if viewmodel then
+				script.offset.Value = oldoff
+				for i,v in pairs(viewmodel:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.LocalTransparencyModifier = v.Transparency
+					end
+					if v:IsA("Decal") and v.Name ~= "thego" then
+						v.Transparency = 0
+					end
+				end
+				for i,v in pairs(viewportframe:GetDescendants()) do
+					if v:IsA("BasePart") then
+						v.LocalTransparencyModifier = 1
+					end
+					if v:IsA("Decal") then
+						v.Transparency = 1
+					end
+				end
+			end
+		end	
+		if black.TextLabel.Text ~= "DOOM ANIMATIONS" then
+			cam.CFrame = cam.CFrame * CFrame.Angles(0,0,math.rad(rotation.Value))
+
+		end
+	end)
+
+	-- extra sound handler
+	function playsound(sound,stop,justreal)
+		if sound then
+			local oldpitch = sound:FindFirstChild("oldpitch")
+			if not oldpitch then
+				oldpitch = Instance.new("NumberValue",sound)
+				oldpitch.Name = "oldpitch"
+				oldpitch.Value = sound.PlaybackSpeed
+
+			end
+			oldpitch = oldpitch.Value
+			local pitch = 1
+			if( not sound:FindFirstChild("nopitch") and not sound.Parent:FindFirstChild("nopitch")) or sound:FindFirstChild("yespitch") then
+				pitch = oldpitch + (math.random(0,30) * 0.01)
+			end
+			if justreal == nil then
+				local extra = sound.Parent:FindFirstChild("playwith"..sound.Name,true)
+				if extra then
+					if stop then
+						playsound(extra,stop) -- just in case
+
+					else
+						playsound(extra)
+
+					end
+				end
+				local oldv = sound:FindFirstChild("oldvolume") 
+				if not oldv then
+					oldv = Instance.new("NumberValue",sound)
+					oldv.Name = "oldvolume"
+					oldv.Value = sound.Volume
+
+				end
+				if stop then
+					local after = sound.Parent:FindFirstChild("funny".."playsound")
+					if after then
+						after:Destroy()
+					end
+				end
+				sound.Volume = 0
+				local mysound = sound:Clone()
+				mysound.Name = "funny".."playsound"
+				mysound.TimePosition = 0
+				mysound.Parent = sound.Parent
+				mysound.Volume = oldv.Value
+				game.Debris:AddItem(mysound,mysound.TimeLength)
+				mysound:Play()
+				mysound.PlaybackSpeed = pitch
+
+			end
+
+			game.ReplicatedStorage.sounds:FireServer(nil,sound,nil,nil,nil,nil,pitch)
+
+		end
+	end
+	--
+	script.Parent:WaitForChild("Hud")
+	local gui = script.Parent.Hud
+	local inspecting = {}
+	gui.Bar.BackgroundTransparency = 1
+	gui.Bar.Bar.BackgroundTransparency = 1
+	local cooldown = false
+	local cantremove = nil
+	local mouse = plr:GetMouse()
+	local blocking = false
+	local pressing = false
+	local function checkblocking(what,who,dmg,bleed,cripple,sound,infect,customanimation)
+		local tool = char:FindFirstChildWhichIsA("Tool")
+		if what == true then
+			if blocking then
+				game.ReplicatedStorage.CheckBlock:FireServer(who,false)
+			else
+				if infect then
+					game.ReplicatedStorage.CheckBlock:FireServer(who,"infect pwease",char,nil,nil,nil,sound)
+				else
+					game.ReplicatedStorage.CheckBlock:FireServer(who,"damage",char,dmg,bleed,cripple,sound,nil,customanimation)
+				end
+			end
+
+		elseif what == "damage" then
+
+			if tool then
+				local canibleed = bleed
+				local mydamage = dmg
+				local enemy = who
+				local custom = customanimation
+				if tool.Name == "Fists" or tool.Name == "Claws" then
+					if plr.PlayerGui.Mouse.Frame.BackgroundTransparency < 1 then
+						mydamage = mydamage * 1.5
+					end
+				end
+				if char:FindFirstChild("muscle") then
+					mydamage = mydamage * 1.15
+
+				end
+				if cripple and canibleed then
+					game.ReplicatedStorage.heal:FireServer(nil,enemy.Humanoid,nil,nil,10,true)
+				elseif canibleed then
+					game.ReplicatedStorage.heal:FireServer(nil,enemy.Humanoid,nil,nil,10)
+
+				elseif cripple then
+					game.ReplicatedStorage.heal:FireServer(nil,enemy.Humanoid,nil,nil,nil,true)
+
+
+				end
+				if char:FindFirstChild("infected") and char.infected:FindFirstChild("Script") then
+					game.ReplicatedStorage.sounds:FireServer(enemy.Humanoid,sound,mydamage,nil,custom,"Killed by "..plr.Name)
+
+				else
+					local dothe = false
+					if enemy:FindFirstChild("infect") and not enemy.infect:FindFirstChild("Script")		 then
+						dothe = true
+					end			
+					game.ReplicatedStorage.sounds:FireServer(enemy.Humanoid,sound,mydamage,dothe,custom,"Killed by "..plr.Name)
+
+				end
+				local extra = sound.Parent:FindFirstChild("playwith"..sound.Name,true)
+				if extra then
+					playsound(extra,true)
+				end
+			end
+		elseif what == "infect pwease" then
+			local enemy = who
+			game.ReplicatedStorage.byestamina:FireServer(char.infect:FindFirstChildWhichIsA("Script").Name,enemy.infect)
+			game.ReplicatedStorage.heal:FireServer(nil,char.Humanoid,25)
+			playsound(sound)
+
+		end
+	end
+
+	game.ReplicatedStorage.CheckBlock.OnClientEvent:Connect(checkblocking)
+
+	function inspecttool(tool)
+		if not inspecting[tool] then
+			inspecting[tool] = true
+			wait(0.15)
+			-- get
+			local information = tool:FindFirstChild("information")
+			if information then
+				local cani = true
+
+				if not cani then
+					plr:Kick("owo, you're so sussy uwu...")
+				else
+					if script.Parent.funny.removebackpack.Value then
+						tool.TextureId = ""
+					end
+
+					-- attributes
+					local customviewmodel = information:GetAttribute("customviewmodel")
+					local isarmor = information:GetAttribute("IsArmor")
+					local isweapon = information:GetAttribute("IsWeapon")
+					local bleed = information:GetAttribute("Bleed")
+					local cripple = information:GetAttribute("Cripple")
+					local jabbleed = information:GetAttribute("JabBleed")
+					local normaldamage = information:GetAttribute("NormalDamage")
+					local range = information:GetAttribute("Range")
+					local jabrange = information:GetAttribute("JabRange")
+					local superdamage = information:GetAttribute("SuperDamage")
+					--
+					local isuseable = information:GetAttribute("IsUseable")
+					local heal = information:GetAttribute("Healing")
+					local maxhealth = information:GetAttribute("maxhealth")
+					local regen = information:GetAttribute("Regeneration")
+					local muscle = information:GetAttribute("muscle")
+					local speedeffect = information:GetAttribute("Speed_effect")
+					local speedeffect2 = information:GetAttribute("Speed_effect2")
+					local speedeffect3 = information:GetAttribute("Speed_effect3")
+					local infectonuse = information:GetAttribute("infectonuse")
+					--
+					if tool.Name == "Claws" and char:FindFirstChild("infect") and (char.infect:FindFirstChild("shizi") or char.infect:FindFirstChild("moth") or char.infect:FindFirstChild("conny") or char.infect:FindFirstChild("fortnite") or char.infect:FindFirstChild("yandeb")) then
+						normaldamage = normaldamage + 2
+						superdamage = superdamage + 2
+						if char.infect:FindFirstChild("yandeb") then
+							normaldamage = normaldamage + 4
+							superdamage = superdamage + 4
+						end
+					end
+					local howmanyfire = information:GetAttribute("howmanyfire")
+					if not howmanyfire then
+						howmanyfire = 1
+
+					end
+					local theamazingcooldown = information:GetAttribute("cooldown")
+					local spread = information:GetAttribute("spread")
+					local damage = information:GetAttribute("damage")
+					local reduction = information:GetAttribute("healthreduction")
+					local itsgun = information:GetAttribute("itsgun")				
+					local maxamountofbullets = information:GetAttribute("destroybullets")
+					local bulletsmax = information:GetAttribute("maxmags")
+					local enoughbullets = nil
+					if bulletsmax then
+						enoughbullets = bulletsmax		
+					end
+					local destroybullets = nil
+					if maxamountofbullets then
+						destroybullets = maxamountofbullets
+
+					end
+					local basicallyalarmgun = information:GetAttribute("basicallyalarmgun")
+					--
+					local custom = information:GetAttribute("customdeath")
+					local desc = information:GetAttribute("desc")
+					local animations = information:GetAttribute("Animations")
+
+					animations = game.ReplicatedStorage.Weapons:FindFirstChild(tostring(animations))
+					-- weapon system
+					local charge = 0			
+					local event = Instance.new("BindableEvent",script)
+					event.Name = "otherevent"
+					local chargetime = information:GetAttribute("chargeorusetime")
+					if chargetime == nil then
+						chargetime = 1
+					end
+					local canhit = false
+					local typeofattack = "jabsound"
+
+					local function getstun(a)
+						if a == "stun" and not stunned  and tool.Parent == char then
+							script.Animator.Disabled = true
+							script.Animator.Disabled = false
+							local iwasinfectedbefore = true
+							if char:FindFirstChild("infect") and char.infect:FindFirstChild("Script") then
+								iwasinfectedbefore = false
+							end
+							root.Anchored = true
+							char.RunScript.CanGain.Value = true     
+							pressing = false
+							stunned = true
+							blocking = false
+							holding = false	
+							cooldown = false
+							if script.Parent.funny.removebackpack.Value then
+								game.StarterGui:SetCoreGuiEnabled(2,false)
+							else
+								script.Parent.funny.back.Visible = false
+
+							end
+							game.ReplicatedStorage.block:FireServer(char.Blocking,false)
+
+							game.ReplicatedStorage.animate:FireServer("Stunned","Stunned")
+							game.Lighting.Blur.Size = 20
+							tween:Create(game.Lighting.Blur,TweenInfo.new(1.5),{Size = 3}):Play()
+							hum.AutoRotate = false
+							script.Event:Fire("animateanim",game.ReplicatedStorage.Weapons.Stunned,"stun",viewmodel)
+
+							wait(1.45)
+							if viewmodel then
+								script.Event:Fire(animations.idle,1,viewmodel,nil,0.25)
+								game.ReplicatedStorage.animate:FireServer(animations.Name,"idle",0.2)
+
+							end
+							wait(0.25)
+							local iamhuman = false
+							if char:FindFirstChild("infect") and char.infect:FindFirstChild("Script") then
+								iamhuman = true
+							end
+							if (iamhuman and not iwasinfectedbefore) or (iwasinfectedbefore and not iamhuman) then
+								root.Anchored = false
+								hum.AutoRotate = true
+								stunned = false
+								if script.Parent.funny.removebackpack.Value then
+									game.StarterGui:SetCoreGuiEnabled(2,true)
+								else
+									script.Parent.funny.back.Visible = true
+
+								end
+							end
+
+
+						end
+					end
+					local yourmom = game.ReplicatedStorage.CheckBlock.OnClientEvent:Connect(function(z)
+						if z == false then
+							event:Fire("stun")
+							playsound(char.Head:FindFirstChild("StunnedSound"))
+
+						end
+					end)
+					game.ReplicatedStorage.animate.OnClientEvent:Connect(getstun)
+					local thefunction1 = nil
+					local thefunction2 = nil
+					local thefunction3 = nil
+					local thefunction4 = nil
+					local thefunction5 = nil
+					local thefunction6 = nil
+					local thefunction7 = nil
+					local thefunction8 = nil
+					local thefunction9 = nil
+					local thefunction01 = nil
+					local thefunction02 = nil
+					thefunction1 = event.Event:Connect(getstun)
+					local checkfunction = nil
+thefunction2 = event.Event:Connect(function(c)
+						if c == "attack" then
+							script.QUICKER.Value = false
+
+							local touched = {}
+							local myrange = range
+							if typeofattack == "jabsound" then
+								myrange = jabrange
+							elseif typeofattack == "shove" then
+								myrange = 4
+
+							end
+							touched = {}
+							while canhit and not stunned  do
+								for i,enemy in pairs(workspace:GetChildren()) do
+									if enemy:FindFirstChild("Humanoid") and enemy ~= char and not touched[enemy] and enemy.Humanoid.Health > 0 then
+										local hisinfect = enemy:FindFirstChild("infect")
+										local myinfect = char:FindFirstChild("infect")
+										if (hisinfect and hisinfect:FindFirstChild("Script") and myinfect and not myinfect:FindFirstChild("Script")) or (hisinfect and not hisinfect:FindFirstChild("Script") and myinfect and myinfect:FindFirstChild("Script")) or not hisinfect then
+											local doingbackstab = false
+											for i,v in pairs(enemy:GetChildren()) do
+												if v:IsA("Accessory") then
+													if v:FindFirstChild("Handle") then
+														v = v.Handle
+													end
+												end
+												if v:IsA("BasePart") and (v.Position - char.HumanoidRootPart.Position).Magnitude < myrange and not touched[enemy] then
+													local sound = tool:FindFirstChild(typeofattack,true)
+													touched[enemy] = true
+													local mydamage = superdamage * (charge / 100)
+													if typeofattack == "jabsound" then
+														mydamage = normaldamage
+													elseif typeofattack == "shove"  then
+														sound = nil
+														mydamage = 0
+
+													end
+
+													if typeofattack == "shove" then
+														local pla = game.Players:GetPlayerFromCharacter(enemy)
+														if pla then
+															if enemy:FindFirstChild("Blocking") and enemy.Blocking.Value == true then
+																game.ReplicatedStorage.animate:FireServer("stun",pla)
+															end
+														end
+													--game.ReplicatedStorage.animate:FireServer("push",pla)
+
+													elseif typeofattack ~= "shove" then
+														if enemy:FindFirstChild("HumanoidRootPart") then
+															mouse.TargetFilter = viewmodel
+															local root = char:WaitForChild("HumanoidRootPart")
+															local part = nil
+															local xvector = root.CFrame.XVector
+															for i = 1,3 do
+																local raycastParams = RaycastParams.new()
+																raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+																raycastParams.FilterDescendantsInstances = {char,viewmodel}
+																raycastParams.IgnoreWater = true
+																local x = xvector
+																if i == 1 then
+																	x = Vector3.new(0,0,0)
+																elseif i == 2 then
+																	x = -xvector
+
+																end
+																local raycastResult = workspace:Raycast(root.Position + x,root.CFrame.LookVector * 50, raycastParams)
+																if raycastResult then
+																	if raycastResult.Instance.Name == "backstab" then
+																		part = raycastResult.Instance
+
+																	end
+																	local copy = Instance.new("Part",workspace)
+																	copy.Size = Vector3.new(0.25,0.25,0.25)
+																	copy.CanCollide = false
+																	copy.Anchored = true		
+																	copy.Transparency = 1
+																	copy.Position = raycastResult.Position
+																	game.Debris:AddItem(copy,1)
+																	tween:Create(copy,TweenInfo.new(0.5,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{Position = copy.Position - Vector3.new(0,5,0),Transparency = 1}):Play()
+																end
+															end
+
+															if mouse.Target and mouse.Target.Name == "backstab" and mouse.Target:IsDescendantOf(enemy) then
+																part = mouse.Target
+															end
+
+															if part and part.Name == "backstab" then
+																if typeofattack == "jabsound" then
+																	mydamage = mydamage * 2
+																else
+																	mydamage = mydamage * 1.6
+																end
+																doingbackstab = true
+																if typeofattack == "jabsound" then
+																	local howmanywehave = 0
+																	for i,v in pairs(tool:GetDescendants()) do
+																		if (string.sub(v.Name, 1, 7) == "jabback") then
+																			howmanywehave = howmanywehave + 1
+																		end
+																	end
+																	if howmanywehave > 0 then
+																		sound = tool:FindFirstChild("jabback"..math.random(1,howmanywehave),true)
+																	end
+																else
+																	local howmanywehave = 0
+																	for i,v in pairs(tool:GetDescendants()) do
+																		if (string.sub(v.Name, 1, 8) == "backstab") then
+																			howmanywehave = howmanywehave + 1
+																		end
+																	end
+																	if howmanywehave > 0 then
+																		sound = tool:FindFirstChild("backstab"..math.random(1,howmanywehave),true)
+																	end
+																end
+
+															elseif typeofattack == "jabsound" then
+																local howmanywehave = 0
+																for i,v in pairs(tool:GetDescendants()) do
+																	if (string.sub(v.Name, 1, 8) == "jabsound") then
+																		howmanywehave = howmanywehave + 1
+																	end
+																end
+																if howmanywehave > 0 then
+																	sound = tool:FindFirstChild("jabsound"..math.random(1,howmanywehave),true)
+																end
+															else
+																local howmanywehave = 0
+																for i,v in pairs(tool:GetDescendants()) do
+																	if (string.sub(v.Name, 1, 11) == "chargesound") then
+																		howmanywehave = howmanywehave + 1
+																	end
+																end
+																if howmanywehave > 0 then
+																	sound = tool:FindFirstChild("chargesound"..math.random(1,howmanywehave),true)
+																end
+															end
+														else
+															mydamage = mydamage * 1.6
+
+														end
+
+
+															local willbleed = false
+															if typeofattack == "jabsound" then
+																if jabbleed then
+																	willbleed = true
+																end
+															else
+																if bleed then
+																	willbleed = true
+																end
+															end
+														local enemyplr = game.Players:GetPlayerFromCharacter(enemy)
+
+													--	if enemyplr and not doingbackstab then
+--															game.ReplicatedStorage.CheckBlock:FireServer(enemyplr,true,plr,mydamage,willbleed,cripple,sound,nil,custom)
+													--	else
+														--	playsound(char.Head:FindFirstChild("StunnedSound"))
+														if (enemy:FindFirstChild("Blocking") and enemy.Blocking.Value == true) and not doingbackstab then
+															event:Fire("stun")
+															playsound(char.Head:FindFirstChild("StunnedSound"))
+														else
+															checkblocking("damage",enemy,mydamage,willbleed,cripple,sound,nil,custom)
+														end
+															
+													--	end
+														script.QUICKER.Value = true
+
+													end
+												end
+											end
+										end
+
+									elseif enemy:FindFirstChild("ObjectHealth") and enemy.ObjectHealth.Value > 0 and (enemy.Position - root.Position).Magnitude < (myrange * 3)	 and not touched[enemy] and char:FindFirstChild("infect") and not char.infect:FindFirstChild("Script") then
+										touched[enemy] = true
+										local mydamage = superdamage * (charge / 100)
+										if typeofattack == "jabsound" then
+											mydamage = normaldamage
+										elseif typeofattack == "shove"  then
+											mydamage = 0
+
+										end
+										if mydamage > 0 then
+											game.ReplicatedStorage.sounds:FireServer("Box",enemy.ObjectHealth,mydamage)
+
+										end
+									end
+								end
+
+								wait(0.05)
+							end
+
+
+						elseif c ~= "stun" then
+							local newbar = gui.Bar:Clone()
+							gui.Bar:Destroy()
+							newbar.Parent = gui
+							gui.Bar.Bar.Size = UDim2.new(0,0,1,0)
+							gui.Bar.Visible = true
+							tween:Create(gui.Bar,TweenInfo.new(0.1),{BackgroundTransparency = 0.8}):Play()
+							tween:Create(gui.Bar.Bar,TweenInfo.new(0.1),{BackgroundTransparency = 0}):Play()
+							gui.Bar.Bar.BackgroundColor3 = Color3.new(1,1,1)
+							local co = false
+							local co2 = false
+							script.QUICKER.Value = false
+							while holding and not blocking and not stunned and tool.Parent == char do
+								charge = charge + (5 / chargetime)
+								if charge >= 100 then
+									charge = 100
+									if isuseable then
+										if typeofattack ~= "throw" then
+											holding = false
+										end
+
+									end
+									gui.Bar.Bar.BackgroundColor3 = Color3.new(0,1,0)
+									if not co and isweapon then
+										co = true
+										local sound = tool:FindFirstChild("chargedmax")
+										if sound then
+											sound:Play()
+										end
+									end
+								elseif charge >= 50 then
+									if not co2 and isweapon then
+										if tool:FindFirstChild("chargedhalf",true) then
+											co2 = true
+											playsound(tool:FindFirstChild("chargedhalf",true))
+
+										end
+
+
+									end
+								elseif charge >= 37.5 then
+									if not co2 and isweapon then
+										co2 = true
+										if not tool:FindFirstChild("chargedhalf",true) then
+											if char:FindFirstChild("infect") and char.infect:FindFirstChild("Script") then
+												script.charge:Play()
+											end
+										end
+
+
+									end
+
+								end
+								tween:Create(gui.Bar.Bar,TweenInfo.new(0.05,Enum.EasingStyle.Linear),{Size = UDim2.new(charge / 100,0,1,0)}):Play()
+
+								wait()
+							end
+							if typeofattack == "throw" then
+								game.ReplicatedStorage.animate:FireServer(animations.Name,"throwend")
+								script.Animator.Disabled = true
+								script.Animator.Disabled = false
+								script.Event:Fire("animateanim",animations,"throwend",viewmodel)
+								char.RunScript.CanGain.Value = true     
+
+								game.ReplicatedStorage.weapon:FireServer("cone",cam.CFrame,charge)
+
+							end
+							if blocking then
+
+								gui.Bar.Bar.BackgroundColor3 = Color3.new(0, 0, 1)
+							end
+							local timetowait = 0.25
+							if charge >= 37.5 and isweapon then
+								timetowait = 0.5
+							end
+							tween:Create(gui.Bar,TweenInfo.new(timetowait),{BackgroundTransparency = 1}):Play()
+							tween:Create(gui.Bar.Bar,TweenInfo.new(timetowait),{BackgroundTransparency = 1}):Play()
+							if (isuseable and ((charge >= 100) or typeofattack == "throw") and not stunned and typeofattack ~= "unequip") or typeofattack == "throw" then
+								cooldown = true
+								cantremove = viewmodel
+								if speedeffect then
+									char.RunScript.Event:Fire(speedeffect)
+								end
+								if speedeffect2 then
+									char.RunScript.Event:Fire(speedeffect2)
+								end
+								if speedeffect3 then
+									char.RunScript.Event:Fire(speedeffect3)
+								end
+
+								if heal or regen then
+									game.ReplicatedStorage.heal:FireServer(tool:FindFirstChild("heal",true),char.Humanoid,heal,regen)
+								end
+								if muscle then
+									game.ReplicatedStorage.heal:FireServer(nil,char.Humanoid,nil,nil,nil,nil,true)
+
+								end
+								if typeofattack ~= "throw" then
+									if infectonuse then
+										game.ReplicatedStorage.byestamina:FireServer(infectonuse,char.infect,"Infected by Stim")
+									end
+								end
+								local v = Instance.new("BoolValue",tool)
+								v.Name = "cantuse"
+								hum:UnequipTools()
+								if char:FindFirstChild("infect") and not char.infect:FindFirstChild("Script") then
+									game.ReplicatedStorage.sounds:FireServer(tool,tool:FindFirstChild("infecteduse",true),true,maxhealth)
+
+								else
+									game.ReplicatedStorage.sounds:FireServer(tool,nil,nil,maxhealth)
+
+								end
+								if script.Parent.funny.removebackpack.Value then
+									game.StarterGui:SetCoreGuiEnabled(2,false)
+								else
+									script.Parent.funny.back.Visible = false
+
+								end
+								if tool.Name == "Berserk" then
+									char.RunScript.Event:Fire("BERSERK")
+
+								end
+
+								repeat wait() until not tool or (tool.Parent ~= plr.Backpack and tool.Parent ~= char)
+								if root.Anchored == false and not stunned then
+									if script.Parent.funny.removebackpack.Value then
+										game.StarterGui:SetCoreGuiEnabled(2,true)
+									else
+										script.Parent.funny.back.Visible = true
+
+									end
+								end
+								cooldown = false
+								wait(0.2)
+								if viewmodel == cantremove then
+
+									viewmodel = nil
+								end
+								if cantremove then
+									cantremove:Destroy()
+
+								end
+
+							end
+						end
+
+					end)
+					local nextsound = 1
+					local function updatebullets()
+						gui.weapongui.weapon.name.Text = tool.Name.."("..enoughbullets.."-"..bulletsmax..")"
+					end
+					local function reload()
+						cooldown = true
+						script.Animator.Disabled = true
+						script.Animator.Disabled = false
+						if script.Parent:WaitForChild("funny").removebackpack.Value then
+							game.StarterGui:SetCoreGuiEnabled(2,false)
+						else
+							script.Parent.funny.back.Visible = false
+						end
+						local howmanytowait = 0
+						for i,v in pairs(animations["reload"]:GetChildren()) do
+							local animationvalue = v:FindFirstChildWhichIsA("NumberValue")
+							if animationvalue then
+								howmanytowait = howmanytowait + animationvalue.Value
+							end						
+						end
+						script.Event:Fire("animateanim",animations,"reload",viewmodel)
+						game.ReplicatedStorage.animate:FireServer(animations.Name,"reload")
+						playsound(tool:FindFirstChild("reloadsound",true))
+						wait(howmanytowait)
+						enoughbullets = bulletsmax
+						cooldown = false
+						if script.Parent:WaitForChild("funny").removebackpack.Value then
+							game.StarterGui:SetCoreGuiEnabled(2,true)
+						else
+							script.Parent.funny.back.Visible = true
+						end
+						updatebullets()
+					end
+					local function attack()
+						pressing = true
+						if not stunned  and not holding and not blocking and not tool:FindFirstChild("cantuse")  then
+							if (isweapon or isuseable) then
+								if not cooldown then
+
+									if (isweapon and char:FindFirstChild("Stamina",true) and char:FindFirstChild("Stamina",true).Value >= 5) or isuseable then
+										if isweapon then
+											char:FindFirstChild("Stamina",true).Value = char:FindFirstChild("Stamina",true).Value - 5
+											char.RunScript.CanGain.Value = false
+										else
+											typeofattack = "use"
+
+										end
+										holding = true
+										charge = 0
+										if chargetime < 999999 then
+											event:Fire()
+										end
+										local whattypething = nil
+										if isweapon then
+											whattypething = "charge"
+
+										else
+											whattypething = "use"
+										end
+										script.Animator.Disabled = true
+										script.Animator.Disabled = false
+										game.ReplicatedStorage.animate:FireServer(animations.Name,whattypething)
+										script.Event:Fire("animateanim",animations,whattypething,viewmodel,tool)
+										local sound = tool:FindFirstChild("playsound"..nextsound,true)
+										if sound then
+											nextsound = nextsound + 1
+											playsound(sound,true)
+										else
+											nextsound = 1
+											local sound = tool:FindFirstChild("playsound"..nextsound,true)
+											if sound then
+												playsound(sound,true)
+											end							
+										end
+									end
+								else
+									repeat wait() until not pressing or not cooldown
+									if pressing then
+										attack()
+									end
+
+								end
+							elseif itsgun and not cooldown and ((destroybullets and destroybullets > 0) or not destroybullets) then
+
+								cooldown = true
+								if enoughbullets then
+									enoughbullets = enoughbullets -1
+								end
+								if destroybullets then
+									destroybullets = destroybullets - 1
+								end
+								if enoughbullets and enoughbullets == 0 then
+									if script.Parent:WaitForChild("funny").removebackpack.Value then
+										game.StarterGui:SetCoreGuiEnabled(2,false)
+									else
+										script.Parent.funny.back.Visible = false
+									end
+								end
+									if destroybullets then
+									gui.weapongui.weapon.name.Text = tool.Name.."("..destroybullets.."/"..maxamountofbullets..")"
+								else
+									gui.weapongui.weapon.name.Text = tool.Name
+
+								end		
+								if bulletsmax then
+									updatebullets()
+								end
+								if destroybullets and destroybullets <= 0 then
+									local v = Instance.new("BoolValue",tool)
+									v.Name = "cantuse"
+									if script.Parent.funny.removebackpack.Value then
+										game.StarterGui:SetCoreGuiEnabled(2,false)
+									else
+										script.Parent.funny.back.Visible = false
+
+									end
+								end
+								local sound = char:FindFirstChild("shootalarm",true)
+								if sound then
+									playsound(sound)
+								end
+								mouse.TargetFilter = viewmodel
+								for i = 1,howmanyfire do
+									if viewmodel then
+										local howmany = Vector3.new(0,0,0)
+										if spread then
+											local magni = (viewmodel:FindFirstChild("wherebullet",true).WorldPosition - mouse.Hit.Position).Magnitude / 2
+											howmany = Vector3.new(math.random(-spread,spread) * (magni / 10),math.random(-spread,spread) * (magni / 10),0)
+										end
+										howmany = howmany / 2
+
+
+
+										local where = mouse.Hit * CFrame.new(howmany)
+										local target = nil
+										local region = Region3.new(where.p - (Vector3.new(0.1,0.1,0.1) * 3),where.p + (Vector3.new(0.1,0.1,0.1) * 3))
+										for i,v in pairs(workspace:FindPartsInRegion3(region,char,math.huge)) do
+											if v.Parent:FindFirstChild("Humanoid") then
+												target = v
+											elseif v:FindFirstChild("ObjectHealth") and v.ObjectHealth.Value > 0 then
+												if not basicallyalarmgun then
+													
+													local mydamage 
+													if damage then
+														mydamage =  damage * 4
+													else
+														mydamage = reduction * 4
+													end
+													if v.Material == Enum.Material.Glass then
+														mydamage = mydamage * 3
+													end
+													game.ReplicatedStorage.sounds:FireServer("Box",v.ObjectHealth,mydamage)
+
+												end
+											end
+										end
+										createbullet(viewmodel:FindFirstChild("wherebullet",true),where)
+
+										if target then
+											local enemyhum = target.Parent:FindFirstChild("Humanoid")
+											if basicallyalarmgun then
+												local enemytorso = target.Parent:FindFirstChild("Torso")
+												local enemyinfect = target.Parent:FindFirstChild("infect")
+												if not enemyhum then
+													enemyhum = target.Parent.Parent:FindFirstChild("Humanoid")
+													enemytorso = target.Parent.Parent:FindFirstChild("Torso")
+													enemyinfect = target.Parent.Parent:FindFirstChild("infect")
+												end
+												if enemyhum and enemytorso and enemyinfect and not enemyinfect:FindFirstChild("Script") then
+													game.ReplicatedStorage.alarmgun:FireServer(enemyhum.Parent,"alarm",tool:FindFirstChild("wherebullet",true),mouse.Hit,damage)
+												else
+
+													game.ReplicatedStorage.alarmgun:FireServer(tool:FindFirstChild("wherebullet",true),"justbullet",mouse.Hit)
+
+												end
+											elseif enemyhum and enemyhum.Health > 0 then
+												local mydamage = nil
+												if damage then
+													mydamage = damage
+												else
+													mydamage = reduction * (enemyhum.MaxHealth / 100)
+												end
+												local soundname = "hitsound"
+												if target.Name == "Head" or target.Name == "GooHead" then
+													mydamage = mydamage * 2
+													soundname = "headshot"
+												end
+
+												game.ReplicatedStorage.sounds:FireServer(enemyhum,tool:FindFirstChild(soundname,true),mydamage,nil,"got shooted by "..plr.DisplayName)
+												game.ReplicatedStorage.heal:FireServer(nil,enemyhum,nil,nil,10)
+												game.ReplicatedStorage.alarmgun:FireServer(tool:FindFirstChild("wherebullet",true),"justbullet",where)
+											else
+												game.ReplicatedStorage.alarmgun:FireServer(tool:FindFirstChild("wherebullet",true),"justbullet",where)
+
+											end
+										else
+											game.ReplicatedStorage.alarmgun:FireServer(tool:FindFirstChild("wherebullet",true),"justbullet",where)
+										end
+									end
+								end
+								if viewmodel then
+									script.Animator.Disabled = true
+									script.Animator.Disabled = false
+									game.ReplicatedStorage.animate:FireServer(animations.Name,"shoot")
+									if destroybullets and destroybullets <= 0 then
+										script.Event:Fire("animateanim",animations,"shoot",viewmodel,nil)
+										wait(0.1)
+										script.Event:Fire("animateanim",animations,"bye",viewmodel,nil)
+										wait(0.5)
+										hum:UnequipTools()
+										game.ReplicatedStorage.sounds:FireServer(tool)
+										if root.Anchored == false and not stunned then
+											if script.Parent.funny.removebackpack.Value then
+												game.StarterGui:SetCoreGuiEnabled(2,true)
+											else
+												script.Parent.funny.back.Visible = true
+
+											end
+										end
+										cooldown = false
+										wait(0.2)
+										if viewmodel == cantremove then
+
+											viewmodel = nil
+										end
+										if cantremove then
+											cantremove:Destroy()
+
+										end
+									else
+										script.Animator.Disabled = true
+										script.Animator.Disabled = false
+										script.Event:Fire("animateanim",animations,"shoot",viewmodel,nil)
+										if tool:FindFirstChild("reloadsoundfire",true) then
+											wait(0.55)
+											playsound(tool:FindFirstChild("reloadsoundfire",true) )
+											wait(theamazingcooldown - 0.55)
+										else
+											wait(theamazingcooldown)
+
+										end
+										cooldown = false
+									end
+									if enoughbullets and enoughbullets == 0 then
+										reload()
+									else
+										if pressing then
+											attack()
+										end
+									end
+								elseif theamazingcooldown then
+									
+									wait(theamazingcooldown)
+
+									cooldown = false
+								else
+									cooldown = false
+								end
+							end
+
+						end
+					end
+					thefunction3 = tool.Activated:Connect(attack)
+					local foundjab2 = animations:FindFirstChild("jab2")
+					local doingjab2 = false
+					local enabledlight = false
+					thefunction4 = tool.Deactivated:Connect(function()
+						pressing = false
+						if not stunned and (isweapon or isuseable) and holding and not cooldown then
+							holding = false
+							char.RunScript.CanGain.Value = true     
+							script.Animator.Disabled = true
+							script.Animator.Disabled = false
+							if isweapon then
+								cooldown = true
+								local name = "jab"
+								if charge >= 37.5 then
+									name = "chargebye"
+								else
+									if foundjab2 and doingjab2 then
+										name = "jab2"
+									end
+									doingjab2 = not doingjab2
+									gui.Bar.Bar.BackgroundColor3 = Color3.new(1,0,0)
+
+								end
+								script.Event:Fire("animateanim",animations,name,viewmodel)
+								game.ReplicatedStorage.animate:FireServer(animations.Name,name)
+
+								canhit = true
+								local sound = nil
+								if name == "jab" or name == "jab2" then
+									typeofattack = "jabsound"
+									sound = tool:FindFirstChild("jabswing",true)
+
+								else
+									typeofattack = "chargesound"
+									sound = tool:FindFirstChild("chargeswing",true)
+
+								end
+								playsound(sound)
+
+								event:Fire("attack")
+
+								wait(0.2)
+								canhit = false
+								local howmanytowait = 0
+
+								for i,v in pairs(animations[name]:GetChildren()) do
+									local animationvalue = v:FindFirstChildWhichIsA("NumberValue")
+									howmanytowait = howmanytowait + animationvalue.Value
+								end
+								howmanytowait = howmanytowait - 0.2
+								for i = 1,4 do
+									local yeah = 1
+									if script.QUICKER.Value then
+										yeah = 0.5
+									end
+									wait((howmanytowait / 4) * yeah)
+								end
+								cooldown = false
+							else
+								script.Event:Fire(animations.idle,1,viewmodel,nil)
+								local sand = tool:FindFirstChild("useclientsound1", true)
+								local ford = tool:FindFirstChild("useclientsound2", true)
+								if sand then sand:Destroy() end
+								if ford then ford:Destroy() end
+								cooldown = false
+								game.ReplicatedStorage.animate:FireServer(animations.Name,"idle")
+
+							end
+
+						end
+					end)
+					-- viewmodel equip and unequip
+					thefunction5 = mouse.keyDown:Connect(function(key)
+						if key == "q" and isweapon and not stunned and tool.Parent == char then
+							if not blocking and not cooldown and not holding then
+								if (isweapon and char:FindFirstChild("Stamina",true) and char:FindFirstChild("Stamina",true).Value >= 5) then
+									char:FindFirstChild("Stamina",true).Value = char:FindFirstChild("Stamina",true).Value - 5
+									cooldown = true
+									script.Animator.Disabled = true
+									script.Animator.Disabled = false
+									script.Event:Fire("animateanim",animations,"shove",viewmodel)
+									game.ReplicatedStorage.animate:FireServer(animations.Name,"shove")
+									local sound = tool:FindFirstChild("shovesound",true)
+									playsound(sound)
+									canhit = true
+									typeofattack = "shove"
+									event:Fire("attack")
+									wait(0.2)
+									canhit = false
+
+									local howmanytowait = 0
+
+									for i,v in pairs(animations["shove"]:GetChildren()) do
+										local animationvalue = v:FindFirstChildWhichIsA("NumberValue")
+										howmanytowait = howmanytowait + animationvalue.Value
+									end
+									howmanytowait = howmanytowait - 0.2
+									wait(0.1)
+									cooldown = false
+								end
+
+							end
+						end
+						if key == "h" and not aiming and not stunned and not holding and not cooldown and not blocking and tool.Parent == char then
+							if animations:FindFirstChild("inspect") then
+								script.Animator.Disabled = true
+								script.Animator.Disabled = false
+								script.Event:Fire("animateanim",animations,"inspect",viewmodel)
+								game.ReplicatedStorage.animate:FireServer(animations.Name,"inspect")
+							end
+						end
+						if key == "r" and not stunned and tool.Parent == char and not blocking and not cooldown and not holding  then
+							if tool.Name == "Claws" then
+								cooldown = true
+								script.Event:Fire("animateanim",animations,"infect",viewmodel)
+								game.ReplicatedStorage.animate:FireServer(animations.Name,"infect")
+
+								local sound = tool:FindFirstChild("infectsound",true)
+								playsound(sound)
+								typeofattack = "infect"
+								local healed = false
+								for i = 1,5 do
+									for i,enemy in pairs(workspace:GetChildren()) do
+										if   enemy:FindFirstChild("Torso") and (enemy.Torso.Position - root.Position).Magnitude < 4 then
+											local hum = enemy:FindFirstChild("Humanoid")
+											if hum and hum.Health <= 25 and not healed then
+												healed = true
+												if hum.Health <= 0 then
+													game.ReplicatedStorage.heal:FireServer(tool:FindFirstChild("heal",true),char.Humanoid,10)
+												elseif enemy:FindFirstChild("infect") and enemy.infect:FindFirstChild("Script") then
+													if enemy:FindFirstChild("HumanoidRootPart") then
+														mouse.TargetFilter = viewmodel
+														local root = char:WaitForChild("HumanoidRootPart")
+														local part = nil
+														local xvector = root.CFrame.XVector
+														for i = 1,3 do
+															local raycastParams = RaycastParams.new()
+															raycastParams.FilterType = Enum.RaycastFilterType.Blacklist
+															raycastParams.FilterDescendantsInstances = {char,viewmodel}
+															raycastParams.IgnoreWater = true
+															local x = xvector
+															if i == 1 then
+																x = Vector3.new(0,0,0)
+															elseif i == 2 then
+																x = -xvector
+
+															end
+															local raycastResult = workspace:Raycast(root.Position + x,root.CFrame.LookVector * 50, raycastParams)
+															if raycastResult then
+																if raycastResult.Instance.Name == "backstab" then
+																	part = raycastResult.Instance
+																end
+															end
+														end
+
+														if mouse.Target and mouse.Target.Name == "backstab" and mouse.Target:IsDescendantOf(enemy) then
+															part = mouse.Target
+														end
+														local sound = tool:FindFirstChild("infect",true)
+														local enemyplr = game.Players:GetPlayerFromCharacter(enemy)
+														local doingbackstab = false
+														if part and part.Name == "backstab" then
+															doingbackstab = true
+														end
+														if (enemy:FindFirstChild("Blocking") and enemy.Blocking.Value == true) and not doingbackstab then
+															event:Fire("stun")
+															playsound(char.Head:FindFirstChild("StunnedSound"))
+														else
+															checkblocking("infect pwease",enemy,nil,nil,nil,sound,true)
+															playsound(tool:FindFirstChild("infect",true))
+														end
+														--[[
+														if part and part.Name == "backstab" or not enemyplr then
+															checkblocking("infect pwease",enemy,nil,nil,nil,sound,true)
+														else    
+															game.ReplicatedStorage.CheckBlock:FireServer(enemyplr,true,plr,nil,nil,nil,sound,true)
+														end
+														--]]
+													end
+												end
+
+
+											end
+										end
+									end
+
+									wait(0.04)
+								end
+
+								local howmanytowait = 0
+
+								for i,v in pairs(animations["infect"]:GetChildren()) do
+									local animationvalue = v:FindFirstChildWhichIsA("NumberValue")
+									howmanytowait = howmanytowait + animationvalue.Value
+								end
+								howmanytowait = howmanytowait - 0.2
+								for i = 1,3 do
+									wait(howmanytowait / 3)
+								end
+								cooldown = false 
+							elseif animations:FindFirstChild("throw") then
+								if (isweapon and char:FindFirstChild("Stamina",true) and char:FindFirstChild("Stamina",true).Value >= 5) or isuseable then
+									if isweapon then
+										char:FindFirstChild("Stamina",true).Value = char:FindFirstChild("Stamina",true).Value - 5
+										char.RunScript.CanGain.Value = false
+									end
+									holding = true
+									charge = 0
+									event:Fire()
+									local whattypething = nil
+									if isuseable then
+										whattypething = "throw"
+										typeofattack = "throw"
+									end
+									script.Animator.Disabled = true
+									script.Animator.Disabled = false
+									game.ReplicatedStorage.animate:FireServer(animations.Name,whattypething)
+									script.Event:Fire("animateanim",animations,whattypething,viewmodel,tool)
+									playsound(tool:FindFirstChild("throwsound",true))
+								end
+							end
+							if tool.Name == "Phone" then
+								if char:FindFirstChild("phone") and tool:FindFirstChild("toolphone") then
+									cooldown = true
+									script.Event:Fire("animateanim",animations,"turn",viewmodel)
+									game.ReplicatedStorage.animate:FireServer(animations.Name,"turn")
+									enabledlight = not enabledlight
+									game.ReplicatedStorage.phone:FireServer(tool.toolphone,enabledlight)
+									local howmanytowait = 0
+									for i,v in pairs(animations["turn"]:GetChildren()) do
+										local animationvalue = v:FindFirstChildWhichIsA("NumberValue")
+										howmanytowait = howmanytowait + animationvalue.Value
+									end
+									wait(howmanytowait)
+									cooldown = false
+								end
+							end	
+						end
+						if key == "f" then
+							pressing = true
+							if not stunned and tool.Parent == char and not blocking and not cooldown and not holding then
+								if isweapon and itsgun then
+									isweapon = false
+
+									attack()
+									isweapon = true
+								end
+							end
+						end
+
+					end)
+					thefunction6 = mouse.KeyUp:Connect(function(key)
+						if key == "r" then
+							if typeofattack == "throw" and holding then
+		holding = false
+
+							end
+						end
+						if key == "f" then
+							pressing = false
+
+						end
+					end)
+					local oldcf = nil
+					thefunction7 = mouse.Button2Down:Connect(function()
+						if not stunned and isweapon and not blocking and char:FindFirstChild("Blocking") and tool.Parent == char and not cooldown then
+							blocking = true
+							pressing = false
+							char.RunScript.CanGain.Value = true     
+							script.Animator.Disabled = true
+							script.Animator.Disabled = false
+							game.ReplicatedStorage.block:FireServer(char.Blocking,true)
+							holding = false
+							script.Event:Fire("animateanim",animations,"block",viewmodel,nil,0.2)
+							script.block:Play()
+							game.ReplicatedStorage.animate:FireServer(animations.Name,"block",0.2)
+						elseif not aiming and  itsgun and not stunned and not blocking and tool.Parent == char then
+							local att = viewmodel:FindFirstChild("aim",true)
+							if att then
+								fieldofview = 40
+								aiming = true
+								if not cooldown then
+									script.Animator.Disabled = true
+									script.Animator.Disabled = false
+									script.Event:Fire(animations.idle,1,viewmodel,nil,0.5)
+									game.ReplicatedStorage.animate:FireServer(animations.Name,"idle")
+								end
+								gui.Parent.Mouse.ImageButton.Visible = not aiming
+								gui.Parent.Mouse.options.Visible = false
+								actualoldoff = oldoff
+								oldoff = -att.Position
+								tween:Create(viewmodel.camera.Weld,TweenInfo.new(1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.InOut),{C0 = oldcf - Vector3.new(0,0.1,0)}):Play()
+
+							end
+						end
+					end)
+					thefunction8 = mouse.Button2Up:Connect(function()
+						if not stunned and isweapon and  blocking and char:FindFirstChild("Blocking") and tool.Parent == char then
+							blocking = false
+							script.Animator.Disabled = true
+							script.Animator.Disabled = false
+							game.ReplicatedStorage.block:FireServer(char.Blocking,false)
+							script.Event:Fire(animations.idle,1,viewmodel,nil,0.2)
+							game.ReplicatedStorage.animate:FireServer(animations.Name,"idle",0.2)
+						elseif itsgun and aiming and not stunned and not blocking  and tool.Parent == char then
+							fieldofview = 90
+							aiming = false
+							gui.Parent.Mouse.ImageButton.Visible = not aiming
+							gui.Parent.Mouse.options.Visible = false
+							oldoff = actualoldoff
+
+						end
+					end)
+					thefunction9 = tool.AncestryChanged:Connect(function(_,ne)
+						if new == nil then
+							event:Destroy()
+							thefunction1:Disconnect()
+							thefunction2:Disconnect()
+							thefunction3:Disconnect()
+							thefunction4:Disconnect()
+							thefunction5:Disconnect()
+							thefunction6:Disconnect()
+							thefunction7:Disconnect()
+							thefunction8:Disconnect()
+							thefunction01:Disconnect()
+							thefunction02:Disconnect()
+							yourmom:Disconnect()
+							thefunction9:Disconnect() -- just in case, i added this last! 
+							-- hehe... who am i talking with
+							-- myself
+							-- hello there
+							-- bruh
+						end
+					end)
+					for i,v in pairs(tool:GetDescendants()) do
+						if v:IsA("BasePart") then
+							v.CanCollide = false
+						end
+					end
+					thefunction01 = tool.Equipped:Connect(function()
+						local cani = false
+						if tool:FindFirstChild("giveto") then
+							for i,v in pairs(tool:GetChildren()) do
+								if v.Name == "giveto" then
+									if v.Value == plr.Name then
+										cani = true
+									end
+								end
+							end
+
+						else
+							cani = true
+						end
+						if not cani then
+							plr:Kick("H-Hewwo there.. *blushes* i-i-i-i mawbe hawwe found a cheawter.. awwe you using mod-dev weapons without pewwms...? *gets shot cutely* youwe so sussy owo...")
+						end
+						playsound(tool:FindFirstChild("equip",true))
+						gui.Enabled = true
+						if cam:FindFirstChild("Viewmodel") then
+							cam.Viewmodel:Destroy()
+						end
+						local thetip = gui.weapongui.weapon.tip
+						if isweapon then
+							gui.weapongui.stimuse.Visible = false
+							gui.weapongui.stim.Visible = false
+							gui.weapongui.weaponuse.Visible = true
+							gui.weapongui.gunuse.Visible = false
+							gui.weapongui.weapon.Visible = true
+							gui.weapongui.weapon.damage.Text = "Damage: "..normaldamage.."-"..superdamage
+							gui.weapongui.weapon.name.Text = tool.Name
+							if tool.Name == "Claws" then
+								gui.weapongui.weaponuse.infect.Visible = true
+							end
+						elseif isuseable then
+							gui.weapongui.stimuse.Visible = true
+							gui.weapongui.stim.Visible = true
+							gui.weapongui.weaponuse.Visible = false
+							gui.weapongui.gunuse.Visible = false
+							gui.weapongui.weapon.Visible = false
+							gui.weapongui.stim.name.Text = tool.Name
+							thetip = gui.weapongui.stim.tip
+							if animations:FindFirstChild("throw") then
+								gui.weapongui.stimuse.throw.Visible = true
+							else
+								gui.weapongui.stimuse.throw.Visible = false
+
+							end
+						elseif itsgun then
+							gui.weapongui.stimuse.Visible = false
+							gui.weapongui.stim.Visible = false
+							gui.weapongui.weaponuse.Visible = false
+							gui.weapongui.weapon.Visible = true
+							gui.weapongui.weapon.damage.Text = "Damage: "..math.floor(damage + 0.5)
+							if destroybullets then
+								gui.weapongui.weapon.name.Text = tool.Name.."("..destroybullets.."/"..maxamountofbullets..")"
+							else
+								gui.weapongui.weapon.name.Text = tool.Name
+
+							end						
+							gui.weapongui.gunuse.Visible = true
+
+						end
+						thetip.Text = tool.ToolTip
+						if desc then
+							thetip.Text = desc
+
+						end
+						local howmanywords = 0
+						for w in string.gmatch(thetip.Text, "(%w)") do 
+							howmanywords += 1
+						end
+						howmanywords = howmanywords * 0.075
+						thetip.Size = UDim2.new(howmanywords,0,0.4,0)
+						script.Animator.Disabled = false
+						if customviewmodel and game.ReplicatedStorage.CUSTOMVIEWMODELS:FindFirstChild(customviewmodel) then
+							viewmodel = game.ReplicatedStorage.CUSTOMVIEWMODELS[customviewmodel]:Clone()
+							viewmodel.Name = "Viewmodel"
+
+						else
+							viewmodel = animations.Viewmodel:Clone()
+
+						end				
+						viewmodel.Parent = cam
+						viewmodel.Name = "Viewmodel"
+						local shirt = char:FindFirstChild("Shirt")
+						if shirt then
+							shirt:Clone().Parent = viewmodel.Model
+
+						end
+						for i,v in pairs(char["Left Arm"]:GetChildren()) do
+							if v:IsA("Decal") then
+								v:Clone().Parent = viewmodel.Model["Left Arm"]
+								v:Clone().Parent = viewmodel.Model["Right Arm"]
+								if viewmodel.larm:FindFirstChild("Union") then
+									v:Clone().Parent = viewmodel.larm.Union
+								end
+								if viewmodel.rarm:FindFirstChild("Union") then
+									v:Clone().Parent = viewmodel.rarm.Union
+								end
+
+							end
+						end
+
+						if enoughbullets then
+							updatebullets()
+						end
+						viewmodel.Model["Left Arm"].Color = char["Left Arm"].Color
+						viewmodel.Model["Right Arm"].Color = char["Right Arm"].Color
+						new = true
+						local camweld = viewmodel.camera.Weld
+						oldcf = camweld.C0
+						local keyframe1 = tween:Create(camweld,TweenInfo.new(1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{C0 = oldcf - Vector3.new(0,0.1,0)})
+						local keyframe2 = tween:Create(camweld,TweenInfo.new(1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{C0 = oldcf - Vector3.new(0,0.2,0)})
+						local keyframe3 = tween:Create(camweld,TweenInfo.new(1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{C0 = oldcf - Vector3.new(0,0.1,0)})
+						local keyframe4 = tween:Create(camweld,TweenInfo.new(1.5,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{C0 = oldcf})
+						script.Event:Fire(animations.idle,1,viewmodel,nil,0)
+						game.ReplicatedStorage.animate:FireServer(animations.Name,"idle")
+						for i,v in pairs(viewmodel:GetDescendants()) do
+							if v:IsA("BasePart") then
+								v.CanCollide = false
+								v.CastShadow = false
+							end
+							if v.Name == "claw" or v.Name == "claw2" then
+								v.Decal.Color3 = char["Right Arm"].Color
+							elseif v.Name == "Union" and (v.Parent.Name == "rarm" or v.Parent.Name == "larm") and plr.Backpack:FindFirstChild("Claws") then
+								v:Destroy()
+
+							end
+						end
+						keyframe1:Play()
+						if script.Parent.funny.removebackpack.Value then
+							game.StarterGui:SetCoreGuiEnabled(2,false)
+						else
+							script.Parent.funny.back.Visible = false
+
+						end
+						wait(0.5)
+						if root.Anchored == false and not stunned then
+							if script.Parent.funny.removebackpack.Value then
+								game.StarterGui:SetCoreGuiEnabled(2,true)
+							else
+								script.Parent.funny.back.Visible = true
+
+							end
+						end
+						wait(1)
+						while viewmodel do
+							if not viewmodel then
+								break
+							end
+							if not aiming then
+								keyframe2:Play()
+							end
+							wait(1.5)
+							if not viewmodel then
+								break
+							end
+							if not aiming then
+								keyframe3:Play()
+							end
+							wait(1.5)
+							if not viewmodel then
+								break
+							end
+							if not aiming then
+								keyframe4:Play()
+							end
+							wait(1.5)
+							if not viewmodel then
+								break
+							end
+							if not aiming then
+								keyframe1:Play()
+							end
+							wait(1.5)
+						end
+					end)
+					thefunction02 = tool.Unequipped:Connect(function()
+						gui.Enabled = false
+						local sand = tool:FindFirstChild("useclientsound1", true)
+						local ford = tool:FindFirstChild("useclientsound2", true)
+						if sand then sand:Destroy() end
+						if ford then ford:Destroy() end
+						if itsgun then
+							fieldofview = 90
+							aiming = false
+							gui.Parent.Mouse.ImageButton.Visible = not aiming
+							gui.Parent.Mouse.options.Visible = false
+							oldoff = actualoldoff
+						end
+						game.ReplicatedStorage.block:FireServer(char.Blocking,false)
+						typeofattack = "unequip"
+						if cam:FindFirstChild("Viewmodel") and cam.Viewmodel ~= cantremove then
+							cam.Viewmodel:Destroy()
+							script.Animator.Disabled = true
+							viewmodel = nil
+							blocking = false
+							holding = false	
+							char.RunScript.CanGain.Value = true     
+						end
+					end)
+
+				end
+
+			end
+
+		end
+	end
+
+	hum.Died:Connect(function()
+		if cam:FindFirstChild("Viewmodel") then
+			cam.Viewmodel:Destroy()
+			viewmodel = nil
+		end
+	end)
+	for i,v in pairs(plr.Backpack:GetChildren()) do
+		inspecttool(v)
+	end
+	plr.Backpack.ChildAdded:Connect(function(d)
+		inspecttool(d)
+	end)
+	wait()
+	if script.Parent.funny.removebackpack.Value then
+		game.StarterGui:SetCoreGuiEnabled(2,true)
+	else
+		script.Parent.funny.back.Visible = true
+
+	end
+
+end
+local old = hum.Health
+local left = true
+hum.HealthChanged:Connect(function()
+	local diff = old - hum.Health
+	if diff > 0 then
+		old = hum.Health
+		if diff > 2 and diff <= 2.0450015258789 then
+			diff = 35
+		end
+		if diff >= 27 then
+			diff = diff * 1.5
+		end
+		if not left then
+			diff = 0 - diff
+		end
+		left = not left
+		if diff > 2 and char:FindFirstChild("infect") and char.infect:FindFirstChild("Script") then
+			local sound = nil
+			local howmanywehave = 0
+			for i,v in pairs(char.Head:GetChildren()) do
+				if (string.sub(v.Name, 1, 11) == "whendamaged") then
+					howmanywehave = howmanywehave + 1
+				end
+			end
+			if howmanywehave > 0 then
+				sound = char.Head:FindFirstChild("whendamaged"..math.random(1,howmanywehave))
+				playsound(sound)
+			end
+		end
+		tween:Create(rotation,TweenInfo.new(0.05,Enum.EasingStyle.Quad,Enum.EasingDirection.In),{Value = rotation.Value + diff}):Play()
+		wait(0.05)
+		tween:Create(rotation,TweenInfo.new(1,Enum.EasingStyle.Quad,Enum.EasingDirection.Out),{Value = 0}):Play()
+
+	end
+end)
+repeat wait() until script.Parent.StartScreen.TextLabel.BackgroundTransparency > 0
+local start = script.Parent:WaitForChild("StartGUI")
+start.black.Visible = true
+anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways.Value = Vector3.new(0,90,0)
+wait(0.25)
+for i = 1,8 do
+	start.black.Visible = not start.black.Visible
+	wait(0.05 - i * 0.005)
+end	
+wait()
+start.black.Visible = false
+script.cam:Play()
+tween:Create(anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways,TweenInfo.new(0.35,Enum.EasingStyle.Linear),{Value = Vector3.new(0,100,0)}):Play()
+wait(0.1)
+start.dot.BackgroundTransparency = 1
+wait(0.25)
+tween:Create(anothervaluethatiusejustforlerpfieldowviewwhyrobloxwhyicantlerpasinglenumberimjusttoolazytousetweenandifiusediwouldusetweenanyways,TweenInfo.new(0.53,Enum.EasingStyle.Linear),{Value = Vector3.new(0,90,0)}):Play()
+wait(0.1)
+start.dot.BackgroundTransparency = 0
+game.StarterGui:SetCoreGuiEnabled(2,true)
+char["Right Arm"].ChildAdded:Connect(function(v)
+	if viewmodel then
+		if v:IsA("Decal") then
+			wait()
+			local foundmodel = false
+			local foundlarm = false
+			local foundrarm = false
+			for i,z in pairs(viewmodel.Model:GetDescendants()) do
+				if z:IsA("Decal") and z.Face == v.Face then
+					z.Transparency = v.Transparency
+					z.Color3 = v.Color3
+					foundmodel = true
+				end
+			end
+			if viewmodel.larm:FindFirstChild("Union") then
+				for i,z in pairs(viewmodel.larm.Union:GetChildren()) do
+					if z:IsA("Decal") and z.Face == v.Face then
+						z.Transparency = v.Transparency
+						z.Color3 = v.Color3
+						foundlarm = true
+					end
+				end
+			else
+				foundlarm = true
+
+			end
+			if viewmodel.rarm:FindFirstChild("Union") then
+				for i,z in pairs(viewmodel.rarm.Union:GetChildren()) do
+					if z:IsA("Decal") and z.Face == v.Face then
+						z.Transparency = v.Transparency
+						z.Color3 = v.Color3
+						foundrarm = true
+					end
+				end
+			else
+
+				foundrarm = true
+
+			end
+			if not foundmodel then
+				v:Clone().Parent = viewmodel.Model["Left Arm"]
+				v:Clone().Parent = viewmodel.Model["Right Arm"]
+			end
+			if not foundlarm then
+				v:Clone().Parent = viewmodel.larm.Union
+			end		
+			if not foundrarm then
+				v:Clone().Parent = viewmodel.rarm.Union
+
+			end
+		end
+	end
+end)
+wait(0.4)
+starting = false
+wait(4.6)
+for i,v in pairs(start:GetDescendants()) do
+	if v:IsA("TextLabel") then
+		tween:Create(v,TweenInfo.new(2),{TextTransparency = 1}):Play()
+	elseif v:IsA("ImageLabel") then
+		tween:Create(v,TweenInfo.new(2),{ImageTransparency = 1}):Play()	
+	elseif v:IsA("Frame") then
+		tween:Create(v,TweenInfo.new(2),{BackgroundTransparency = 1}):Play()	
+	end
+end
